@@ -1,0 +1,41 @@
+using BadmintonCourtsApp.Models;
+using BadmintonCourtsApp.Services;
+using Microsoft.AspNetCore.Mvc;
+
+namespace BadmintonCourtsApp.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class PlayersController : ControllerBase
+{
+    private readonly ICourtService _courtService;
+
+    public PlayersController(ICourtService courtService)
+    {
+        _courtService = courtService;
+    }
+
+    [HttpGet]
+    public ActionResult<List<Player>> GetPlayers()
+    {
+        return Ok(_courtService.GetPlayers());
+    }
+
+    [HttpPost]
+    public ActionResult<Player> AddPlayer([FromBody] AddPlayerRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Name))
+        {
+            return BadRequest("Player name is required");
+        }
+
+        var player = _courtService.AddPlayer(request.Name);
+        return Ok(player);
+    }
+}
+
+public class AddPlayerRequest
+{
+    public string Name { get; set; } = string.Empty;
+}
+
