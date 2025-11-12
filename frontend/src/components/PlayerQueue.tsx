@@ -3,9 +3,10 @@ import { Player } from '../types';
 interface PlayerQueueProps {
   players: Player[];
   waitingCount: number;
+  onDeletePlayer: (playerId: number) => void;
 }
 
-export default function PlayerQueue({ players, waitingCount }: PlayerQueueProps) {
+export default function PlayerQueue({ players, waitingCount, onDeletePlayer }: PlayerQueueProps) {
   // Filter and display ONLY waiting players in the Waiting Queue
   // Handle both string and numeric enum values from backend
   const waitingPlayers = players.filter(p => {
@@ -17,13 +18,6 @@ export default function PlayerQueue({ players, waitingCount }: PlayerQueueProps)
     const status = String(p.status).toLowerCase();
     return status === 'playing' || status === '1';
   });
-
-  // Debug: Log to see what we're receiving
-  if (players.length > 0) {
-    console.log('All players:', players);
-    console.log('Waiting players:', waitingPlayers);
-    console.log('Waiting count from backend:', waitingCount);
-  }
 
   return (
     <div>
@@ -95,7 +89,16 @@ export default function PlayerQueue({ players, waitingCount }: PlayerQueueProps)
                     {player.status}
                   </span>
                 </div>
-                <div className="text-xs text-gray-500">ID: {player.id}</div>
+                <div className="flex items-center justify-between text-xs text-gray-500">
+                  <span>ID: {player.id}</span>
+                  <button
+                    type="button"
+                    onClick={() => onDeletePlayer(player.id)}
+                    className="text-red-600 hover:text-red-800 font-semibold transition-colors"
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             ))}
           </div>

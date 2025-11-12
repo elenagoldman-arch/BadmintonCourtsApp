@@ -32,6 +32,18 @@ public class PlayersController : ControllerBase
         var player = _courtService.AddPlayer(request.Name);
         return Ok(player);
     }
+
+    [HttpDelete("{id:int}")]
+    public IActionResult DeletePlayer(int id)
+    {
+        var success = _courtService.DeletePlayer(id);
+        if (!success)
+        {
+            return NotFound(new { message = "Player not found" });
+        }
+
+        return NoContent();
+    }
 }
 
 public class AddPlayerRequest

@@ -53,6 +53,15 @@ function App() {
     fetchData();
   };
 
+  const handleDeletePlayer = async (playerId: number) => {
+    try {
+      await api.deletePlayer(playerId);
+      fetchData();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Failed to delete player');
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -90,7 +99,11 @@ function App() {
           {courts && (
             <>
               <CourtList courts={courts.courts} onMatchEnded={handleMatchEnded} />
-              <PlayerQueue players={players} waitingCount={courts.waitingPlayerCount} />
+              <PlayerQueue
+                players={players}
+                waitingCount={courts.waitingPlayerCount}
+                onDeletePlayer={handleDeletePlayer}
+              />
             </>
           )}
         </div>

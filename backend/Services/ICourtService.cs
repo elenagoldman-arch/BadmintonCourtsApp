@@ -9,6 +9,7 @@ public interface ICourtService
     List<Court> GetCourts();
     bool StartMatch();
     bool EndMatch(int courtId);
+    bool DeletePlayer(int playerId);
     bool CloseCourt(int courtId);
     int GetWaitingPlayerCount();
 }

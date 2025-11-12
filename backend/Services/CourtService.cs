@@ -159,6 +159,55 @@ public class CourtService : ICourtService
         }
     }
 
+    public bool DeletePlayer(int playerId)
+    {
+        lock (_lock)
+        {
+            var player = _players.FirstOrDefault(p => p.Id == playerId);
+            if (player == null)
+            {
+                return false;
+            }
+
+            // If player is currently on a court, end that match
+            var courtWithPlayer = _courts.FirstOrDefault(c => c.Players.Any(cp => cp.Id == playerId));
+            if (courtWithPlayer != null)
+            {
+                foreach (var courtPlayer in courtWithPlayer.Players.ToList())
+                {
+                    courtPlayer.Status = PlayerStatus.Waiting;
+                    _players.Remove(courtPlayer);
+                    if (courtPlayer.Id != playerId)
+                    {
+                        _players.Add(courtPlayer);
+                    }
+                }
+
+                courtWithPlayer.Players.Clear();
+                courtWithPlayer.IsActive = false;
+
+                // If we have enough players waiting, immediately start a new match on this court
+                var waitingPlayers = _players.Where(p => p.Status == PlayerStatus.Waiting).ToList();
+                if (waitingPlayers.Count >= 4)
+                {
+                    var playersToAssign = waitingPlayers.Take(4).ToList();
+
+                    foreach (var assignPlayer in playersToAssign)
+                    {
+                        assignPlayer.Status = PlayerStatus.Playing;
+                    }
+
+                    courtWithPlayer.Players = playersToAssign;
+                    courtWithPlayer.IsActive = true;
+                }
+            }
+
+            _players.Remove(player);
+
+            return true;
+        }
+    }
+
     public int GetWaitingPlayerCount()
     {
         lock (_lock)
